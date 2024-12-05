@@ -176,7 +176,8 @@ app.post("/getInfo", async (req, res) => {
             data: data.StationToStationInfos[0],
             fromStation: req.body.fromStation,
             toStation: req.body.toStation,
-            source: "WMATA API"
+            source: "WMATA API",
+            currentPage: "general"
         });
     } catch (error) {
         console.error('Error:', error);
@@ -203,7 +204,8 @@ app.post("/getCollegeParkRoute", async (req, res) => {
             data: routeInfo.StationToStationInfos[0],
             fromStation: "College Park-U of Md",
             toStation: req.body.toStation,
-            source: "Stored Data"
+            source: "Stored Data",
+            currentPage: "collegePark"
         });
     } catch (error) {
         console.error("Error:", error);
