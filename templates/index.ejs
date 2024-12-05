@@ -1,4 +1,3 @@
-<!-- templates/index.ejs -->
 <!DOCTYPE html>
 <html>
 
@@ -59,35 +58,105 @@
         button:hover {
             background-color: #0056b3;
         }
+
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .nav-button {
+            flex: 1;
+            padding: 15px 0;
+            text-align: center;
+            text-decoration: none;
+            color: #007bff;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            min-width: 0;
+            white-space: nowrap;
+        }
+
+        .nav-button.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input[disabled] {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h1>WMATA Route Planner</h1>
-        <form action="/getInfo" method="POST">
-            <div class="form-group">
-                <label for="fromStation">From Station:</label>
-                <select name="fromStation" id="fromStation" required>
-                    <% stations.forEach(station=> { %>
-                        <option value="<%= station %>">
-                            <%= station %>
-                        </option>
-                        <% }); %>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="toStation">To Station:</label>
-                <select name="toStation" id="toStation" required>
-                    <% stations.forEach(station=> { %>
-                        <option value="<%= station %>">
-                            <%= station %>
-                        </option>
-                        <% }); %>
-                </select>
-            </div>
-            <button type="submit">Get Route Information</button>
-        </form>
+
+        <div class="nav-buttons">
+            <a href="/" class="nav-button <%= currentPage === 'general' ? 'active' : '' %>">
+                General Route Planner
+            </a>
+            <a href="/college-park" class="nav-button <%= currentPage === 'collegePark' ? 'active' : '' %>">
+                College Park Routes
+            </a>
+        </div>
+
+        <% if (currentPage==='general' ) { %>
+            <form action="/getInfo" method="POST">
+                <div class="form-group">
+                    <label for="fromStation">From Station:</label>
+                    <select name="fromStation" id="fromStation" required>
+                        <% stations.forEach(station=> { %>
+                            <option value="<%= station %>">
+                                <%= station %>
+                            </option>
+                            <% }); %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="toStation">To Station:</label>
+                    <select name="toStation" id="toStation" required>
+                        <% stations.forEach(station=> { %>
+                            <option value="<%= station %>">
+                                <%= station %>
+                            </option>
+                            <% }); %>
+                    </select>
+                </div>
+                <button type="submit">Get Route Information</button>
+            </form>
+            <% } else { %>
+                <form action="/getCollegeParkRoute" method="POST">
+                    <div class="form-group">
+                        <label for="fromStation">From Station:</label>
+                        <input type="text" id="fromStation" value="College Park-U of Md" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="toStation">To Station:</label>
+                        <select name="toStation" id="toStation" required>
+                            <% collegeDestinations.forEach(station=> { %>
+                                <option value="<%= station %>">
+                                    <%= station %>
+                                </option>
+                                <% }); %>
+                        </select>
+                    </div>
+                    <button type="submit">Get Route Information</button>
+                </form>
+                <% } %>
     </div>
 </body>
 

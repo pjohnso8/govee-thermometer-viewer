@@ -1,18 +1,14 @@
-const path = require("path");
 require("dotenv").config();
-const express = require("express");
 const fetch = require("node-fetch");
 const { MongoClient } = require('mongodb');
-const app = express();
 
 // MongoDB setup
 const uri = "mongodb+srv://parker:cmsc335password@cluster0.qsmpv.mongodb.net/CMSC335Final?retryWrites=true&w=majority";
 
-app.set("views", path.join(__dirname, "templates"));
-app.set("view engine", "ejs");
-app.use(express.urlencoded({ extended: true }));
+// College Park station code is E09
+const COLLEGE_PARK = "E09";
 
-// Station codes mapping
+// Complete list of all WMATA station codes
 const stationCodes = {
     "Addison Road-Seat Pleasant": "G03",
     "Anacostia": "F06",
@@ -114,109 +110,85 @@ const stationCodes = {
     "Woodley Park-Zoo/Adams Morgan": "A04"
 };
 
-// Route to display the form
-app.get("/", async (req, res) => {
-    res.render("index", { 
-        stations: Object.keys(stationCodes),
-        currentPage: "general" 
-    });
-});
-
-// Route for College Park specific page
-app.get("/college-park", async (req, res) => {
-    const client = new MongoClient(uri);
-    try {
-        await client.connect();
-        const collection = client.db("CMSC335Final").collection("wmata");
-        
-        // Get all available destinations from MongoDB
-        const destinations = await collection.distinct("toStation");
-        destinations.sort();
-
-        res.render("index", { 
-            stations: Object.keys(stationCodes),
-            collegeDestinations: destinations,
-            currentPage: "collegePark"
-        });
-    } catch (error) {
-        console.error("Error:", error);
-        res.render("error", { error: error.message });
-    } finally {
-        await client.close();
-    }
-});
-
-// Original route for general planner
-app.post("/getInfo", async (req, res) => {
-    const start = Array.isArray(stationCodes[req.body.fromStation]) ? 
-        stationCodes[req.body.fromStation][0] : 
-        stationCodes[req.body.fromStation];
-    const end = Array.isArray(stationCodes[req.body.toStation]) ? 
-        stationCodes[req.body.toStation][0] : 
-        stationCodes[req.body.toStation];
-    
+async function getStationToStationInfo(fromStation, toStation) {
     try {
         const response = await fetch(
-            `https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo?FromStationCode=${start}&ToStationCode=${end}`,
+            `https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo?FromStationCode=${fromStation}&ToStationCode=${toStation}`,
             {
                 method: 'GET',
                 headers: {
-                    'Cache-Control': 'no-cache',
-                    'api_key': '8735e3d470f44dc6abca0e456bc197d5',
+                    'api_key': '8735e3d470f44dc6abca0e456bc197d5'
                 }
             }
         );
 
         if (!response.ok) {
-            throw new Error(`Please select a different source or destination station! Status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        res.render("results", { 
-            data: data.StationToStationInfos[0],
-            fromStation: req.body.fromStation,
-            toStation: req.body.toStation,
-            stations: Object.keys(stationCodes),
-            source: "WMATA API"
-        });
+        return data;
     } catch (error) {
-        console.error('Error:', error);
-        res.render("error", { error: error.message });
+        console.error(`Error fetching data for ${fromStation} to ${toStation}:`, error);
+        return null;
     }
-});
+}
 
-// New route for College Park specific queries
-app.post("/getCollegeParkRoute", async (req, res) => {
+async function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function collectAllRoutes() {
     const client = new MongoClient(uri);
+
     try {
         await client.connect();
+        console.log("Connected to MongoDB");
+
         const collection = client.db("CMSC335Final").collection("wmata");
+        let routesCollected = 0;
+        
+        // Get all destination stations
+        const destinations = Object.entries(stationCodes).filter(([name]) => name !== "College Park-U of Md");
+        const totalRoutes = destinations.length;
 
-        const routeInfo = await collection.findOne({
-            toStation: req.body.toStation
-        });
+        for (const [stationName, stationCode] of destinations) {
+            // Add a delay to respect API rate limits
+            await delay(500);
 
-        if (!routeInfo) {
-            throw new Error("Route not found in database");
+            // Handle both single codes and array of codes
+            const code = Array.isArray(stationCode) ? stationCode[0] : stationCode;
+
+            const routeInfo = await getStationToStationInfo(COLLEGE_PARK, code);
+            
+            if (routeInfo && routeInfo.StationToStationInfos) {
+                try {
+                    await collection.insertOne({
+                        timestamp: new Date(),
+                        fromStation: "College Park-U of Md",
+                        toStation: stationName,  // This will preserve the hyphens
+                        toStationCode: code,
+                        ...routeInfo
+                    });
+                    
+                    routesCollected++;
+                    console.log(`Collected route ${routesCollected}/${totalRoutes}: College Park to ${stationName} (${code})`);
+                } catch (insertError) {
+                    console.error(`Error inserting route to ${stationName} (${code}):`, insertError);
+                }
+            }
         }
 
-        res.render("results", { 
-            data: routeInfo.StationToStationInfos[0],
-            fromStation: "College Park-U of Md",
-            toStation: req.body.toStation,
-            stations: Object.keys(stationCodes),
-            source: "Stored Data"
-        });
+        console.log(`Collection complete! Collected ${routesCollected} routes.`);
     } catch (error) {
         console.error("Error:", error);
-        res.render("error", { error: error.message });
     } finally {
         await client.close();
+        console.log("Disconnected from MongoDB");
     }
-});
+}
 
-const port = process.argv[2] || 5000;
-app.listen(port, () => {
-    console.log(`Web server started and running at http://localhost:${port}`);
-    console.log("Stop to shutdown the server: ");
+// Run the collection script
+collectAllRoutes().then(() => {
+    console.log("Script finished executing");
 });
