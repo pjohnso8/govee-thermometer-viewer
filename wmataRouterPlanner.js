@@ -6,7 +6,7 @@ const { MongoClient } = require('mongodb');
 const app = express();
 
 // MongoDB setup
-const uri = "mongodb+srv://parker:cmsc335password@cluster0.qsmpv.mongodb.net/CMSC335Final?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@cluster0.qsmpv.mongodb.net/${process.env.MONGO_DB_NAME}?retryWrites=true&w=majority`;
 
 app.set("views", path.join(__dirname, "templates"));
 app.set("view engine", "ejs");
