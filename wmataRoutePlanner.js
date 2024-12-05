@@ -215,7 +215,7 @@ app.post("/getCollegeParkRoute", async (req, res) => {
     }
 });
 
-const port = process.argv[2] || 5000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`Web server started and running at http://localhost:${port}`);
     console.log("Stop to shutdown the server: ");
