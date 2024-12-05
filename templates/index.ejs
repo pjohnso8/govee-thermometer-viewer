@@ -1,0 +1,94 @@
+<!-- templates/index.ejs -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WMATA Route Planner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #1a1a1a;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>WMATA Route Planner</h1>
+        <form action="/getInfo" method="POST">
+            <div class="form-group">
+                <label for="fromStation">From Station:</label>
+                <select name="fromStation" id="fromStation" required>
+                    <% stations.forEach(station=> { %>
+                        <option value="<%= station %>">
+                            <%= station %>
+                        </option>
+                        <% }); %>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="toStation">To Station:</label>
+                <select name="toStation" id="toStation" required>
+                    <% stations.forEach(station=> { %>
+                        <option value="<%= station %>">
+                            <%= station %>
+                        </option>
+                        <% }); %>
+                </select>
+            </div>
+            <button type="submit">Get Route Information</button>
+        </form>
+    </div>
+</body>
+
+</html>
