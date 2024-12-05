@@ -115,7 +115,7 @@ const stationCodes = {
 };
 
 // Route to display the form
-app.get("/", async (req, res) => {
+app.get("/", (req, res) => {
     res.render("index", { 
         stations: Object.keys(stationCodes),
         currentPage: "general" 
@@ -146,7 +146,7 @@ app.get("/college-park", async (req, res) => {
     }
 });
 
-// Original route for general planner
+// Route for general queries
 app.post("/getInfo", async (req, res) => {
     const start = Array.isArray(stationCodes[req.body.fromStation]) ? 
         stationCodes[req.body.fromStation][0] : 
@@ -176,7 +176,6 @@ app.post("/getInfo", async (req, res) => {
             data: data.StationToStationInfos[0],
             fromStation: req.body.fromStation,
             toStation: req.body.toStation,
-            stations: Object.keys(stationCodes),
             source: "WMATA API"
         });
     } catch (error) {
@@ -185,7 +184,7 @@ app.post("/getInfo", async (req, res) => {
     }
 });
 
-// New route for College Park specific queries
+// Route for College Park specific queries
 app.post("/getCollegeParkRoute", async (req, res) => {
     const client = new MongoClient(uri);
     try {
@@ -204,7 +203,6 @@ app.post("/getCollegeParkRoute", async (req, res) => {
             data: routeInfo.StationToStationInfos[0],
             fromStation: "College Park-U of Md",
             toStation: req.body.toStation,
-            stations: Object.keys(stationCodes),
             source: "Stored Data"
         });
     } catch (error) {

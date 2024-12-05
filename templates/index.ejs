@@ -138,6 +138,54 @@
                 </div>
                 <button type="submit">Get Route Information</button>
             </form>
+
+            <script>
+                const fromStation = document.getElementById('fromStation');
+                const toStation = document.getElementById('toStation');
+
+                function updateDestinations() {
+                    const selectedSource = fromStation.value;
+                    const currentDest = toStation.value;
+                    const keepCurrentSelection = currentDest && currentDest !== selectedSource;
+
+                    toStation.innerHTML = '';
+
+                    <% stations.forEach(station => { %>
+                        if ('<%= station %>' !== selectedSource) {
+                            const option = new Option('<%= station %>', '<%= station %>');
+                            toStation.add(option);
+                        }
+                    <% }); %>
+
+                    if (keepCurrentSelection && toStation.querySelector(`option[value="${currentDest}"]`)) {
+                        toStation.value = currentDest;
+                    }
+                }
+
+                function updateSources() {
+                    const selectedDest = toStation.value;
+                    const currentSource = fromStation.value;
+                    const keepCurrentSelection = currentSource && currentSource !== selectedDest;
+
+                    fromStation.innerHTML = '';
+
+                    <% stations.forEach(station => { %>
+                        if ('<%= station %>' !== selectedDest) {
+                            const option = new Option('<%= station %>', '<%= station %>');
+                            fromStation.add(option);
+                        }
+                    <% }); %>
+
+                    if (keepCurrentSelection && fromStation.querySelector(`option[value="${currentSource}"]`)) {
+                        fromStation.value = currentSource;
+                    }
+                }
+
+                fromStation.addEventListener('change', updateDestinations);
+                toStation.addEventListener('change', updateSources);
+
+                updateDestinations();
+            </script>
             <% } else { %>
                 <form action="/getCollegeParkRoute" method="POST">
                     <div class="form-group">
