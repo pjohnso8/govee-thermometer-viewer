@@ -16,6 +16,21 @@ const databaseAndCollection = {
     collection: process.env.MONGO_COLLECTION
 };
 
+let start, end;
+
+fetch('https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo?FromStationCode=' + start + '&ToStationCode=J03', {
+    method: 'GET',
+    // Request headers
+    headers: {
+        'Cache-Control': 'no-cache',
+        'api_key': '••••••••••••••••••••••••••••••••',}
+})
+.then(response => {
+    console.log(response.status);
+    console.log(response.text());
+})
+.catch(err => console.error(err));
+
 
 // Start server
 const port = process.argv[2] || 5000;
