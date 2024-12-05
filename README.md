@@ -1,7 +1,10 @@
-# govee-thermometer-viewer
+# wmata-app
 
-api key = 65636731-2f7b-4a1c-9342-236647250e5f
+api key = 8735e3d470f44dc6abca0e456bc197d5
 
-homepage - constantly show all boarding and arriving trains
-form - filter by specific station OR entire line color to see train arrival time
-mongodb - store requests consistently, select time wanted and then be able to use form to filter further
+
+form(api) - filter from source to destination station: show railtime, rail fairs, total miles
+
+form/mongodb - filter from cp to any other station, show same data but get data from mongodb so API isn't used (got from manually getting data in advance (98 total entries))
+
+for stations, use drop down for input
