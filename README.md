@@ -1,7 +1,7 @@
 # WMATA Route Planner
 
 Submitted by: Parker Johnson (Directory ID: 118716886)
-Group Members: Imirie Billey (Directory ID: IMIRIE DO THIS PLSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs)
+Group Members: Imirie Billey (Directory ID: 118755977)
 App Description: Allow users to see distance, time, and fare cost between different WMATA stations.
 YouTube Video Link: !!!!!!!!!!!!!!!!!!!!!!!!!TODO
 APIs: Washington Metropolitan Area Transit Authority API (https://developer.wmata.com/)
