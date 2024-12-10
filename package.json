@@ -4,17 +4,17 @@
     "description": "WMATA Route Planning Application",
     "main": "wmataRoutePlanner.js",
     "scripts": {
-      "start": "node wmataRoutePlanner.js",
-      "build": "echo 'No build step required'"
+        "start": "node wmataRoutePlanner.js",
+        "build": "echo 'No build step required'"
     },
     "dependencies": {
-      "dotenv": "^16.0.0",
-      "ejs": "^3.1.6",
-      "express": "^4.17.1",
-      "mongodb": "^4.4.0",
-      "node-fetch": "^2.6.7"
+        "dotenv": "^16.0.0",
+        "ejs": "^3.1.6",
+        "express": "^4.17.1",
+        "mongodb": "^6.12.0",
+        "node-fetch": "^2.6.7"
     },
     "engines": {
-      "node": ">=18.0.0"
+        "node": ">=18.0.0"
     }
-  }
+}

@@ -2,15 +2,45 @@ const path = require("path");
 require("dotenv").config();
 const express = require("express");
 const fetch = require("node-fetch");
-const { MongoClient } = require('mongodb');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
+process.stdin.setEncoding("utf8");
 
 // MongoDB setup
-const uri = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@cluster0.qsmpv.mongodb.net/${process.env.MONGO_DB_NAME}?retryWrites=true&w=majority`;
-
+const uri = `mongodb+srv://${process.env.MONGO_DB_USERNAME}:${process.env.MONGO_DB_PASSWORD}@cluster0.qsmpv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 app.set("views", path.join(__dirname, "templates"));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+
+const portNumber = process.argv[2];
+
+app.listen(portNumber, (err) => {
+    if(err) {
+        console.log("Starting server failed.");
+    } else {
+        console.log(`Web server started and running at http://localhost:${portNumber}`);
+        promptUser();
+    }
+});
+
+function promptUser() {
+    const prompt = "Stop to shutdown the server: ";
+    process.stdout.write(prompt);
+    process.stdin.on("readable", function() {
+        const input = process.stdin.read();
+        if(input !== null){
+            const command = input.trim();
+            if(command.toLowerCase() === "stop") {
+                process.stdout.write("Shutting down the server\n");
+                process.exit(0);
+            } else {
+                process.stdout.write(`Invalid command\n`);
+            }
+            process.stdin.resume();
+            promptUser();
+        }
+    });
+}
 
 // Station codes mapping
 const stationCodes = {
@@ -124,7 +154,12 @@ app.get("/", (req, res) => {
 
 // Route for College Park specific page
 app.get("/college-park", async (req, res) => {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(uri, { 
+        tls: true, 
+        serverApi: ServerApiVersion.v1,
+      
+    });
+
     try {
         await client.connect();
         const collection = client.db("CMSC335Final").collection("wmata");
@@ -177,7 +212,8 @@ app.post("/getInfo", async (req, res) => {
             fromStation: req.body.fromStation,
             toStation: req.body.toStation,
             source: "WMATA API",
-            currentPage: "general"
+            currentPage: "general",
+            fare: req.body.fare
         });
     } catch (error) {
         console.error('Error:', error);
@@ -187,7 +223,12 @@ app.post("/getInfo", async (req, res) => {
 
 // Route for College Park specific queries
 app.post("/getCollegeParkRoute", async (req, res) => {
-    const client = new MongoClient(uri);
+    const client = new MongoClient(uri, { 
+        tls: true, 
+        serverApi: ServerApiVersion.v1,
+       
+    });
+    
     try {
         await client.connect();
         const collection = client.db("CMSC335Final").collection("wmata");
@@ -205,7 +246,8 @@ app.post("/getCollegeParkRoute", async (req, res) => {
             fromStation: "College Park-U of Md",
             toStation: req.body.toStation,
             source: "Stored Data",
-            currentPage: "collegePark"
+            currentPage: "collegePark",
+            fare: req.body.fare
         });
     } catch (error) {
         console.error("Error:", error);
@@ -215,8 +257,8 @@ app.post("/getCollegeParkRoute", async (req, res) => {
     }
 });
 
-const port = process.env.PORT || 5000;
+/*const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`Web server started and running at http://localhost:${port}`);
     console.log("Stop to shutdown the server: ");
-});
+}); */
