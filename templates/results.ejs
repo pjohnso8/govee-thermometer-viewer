@@ -90,7 +90,20 @@
 
             <div class="fare-info">
                 <h3>Fares:</h3>
-                <% if(fare === "peak") {%>
+                <% if(fare === "all") {%>
+                <div class="fare-item">
+                    <span>Peak Time:</span>
+                    <span>$<%= data.RailFare.PeakTime.toFixed(2) %></span>
+                </div>
+                <div class="fare-item">
+                    <span>Off-Peak Time:</span>
+                    <span>$<%= data.RailFare.OffPeakTime.toFixed(2) %></span>
+                </div>
+                <div class="fare-item">
+                    <span>Senior/Disabled:</span>
+                    <span>$<%= data.RailFare.SeniorDisabled.toFixed(2) %></span>
+                </div>
+                <% } else if(fare === "peak") {%>
                 <div class="fare-item">
                     <span>Peak Time:</span>
                     <span>$<%= data.RailFare.PeakTime.toFixed(2) %></span>
