@@ -12,13 +12,13 @@ app.set("views", path.join(__dirname, "templates"));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
-const portNumber = process.argv[2];
+//const portNumber = process.argv[2];
 
-app.listen(portNumber, (err) => {
+app.listen(process.env.PORT, (err) => {
     if(err) {
         console.log("Starting server failed.");
     } else {
-        console.log(`Web server started and running at http://localhost:${portNumber}`);
+        console.log(`Web server started and running at http://localhost:${process.env.PORT}`);
         promptUser();
     }
 });
